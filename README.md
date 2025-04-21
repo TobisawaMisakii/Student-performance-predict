@@ -1,4 +1,4 @@
-# Student Performance Prediction、
+# Student Performance Prediction
 
 `github`仓库地址：https://github.com/TobisawaMisakii/Student-performance-predict
 
