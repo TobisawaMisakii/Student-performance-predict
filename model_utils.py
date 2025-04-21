@@ -45,22 +45,22 @@ def evaluate_models(data_train, y_train, data_test, y_test):
 
     for name, model in models.items():
         model_results = []
-        print(f"======================")
-        print(f"{name}:")
+        print(f"{name} evaluation begins...")
 
         output_dir = f"output/{name}/{n_outputs}"
         shutil.rmtree(output_dir, ignore_errors=True)
         os.makedirs(output_dir, exist_ok=True)
 
         for i in range(n_outputs):
-            print(f"第 {i+1} 个输出")
             model.fit(X_train, y_train[:, i])
             y_pred = model.predict(X_test)
 
             acc = accuracy_score(y_test[:, i], y_pred)
             model_results.append(acc)
 
-            print(f"准确率: {acc:.4f}")
+            # print(f"准确率: {acc:.4f}")
+            with open(f"{output_dir}/accuracy_{i + 1}.txt", 'w') as f:
+                f.write(f"{acc:.4f}")
             cls_report = classification_report(y_test[:, i], y_pred, zero_division=0, output_dict=True)
             cls_report = pd.DataFrame(cls_report).transpose()
             cls_report.to_csv(f"{output_dir}/cls_report_{i + 1}.csv")
@@ -86,6 +86,6 @@ def evaluate_models(data_train, y_train, data_test, y_test):
 
 if __name__ == "__main__":
     # DataLoader
-    data_train, y_train, data_test, y_test = load_data(predict_kws=['G1', 'G2', 'G3'])
+    data_train, y_train, data_test, y_test = load_data(predict_kws=['G3'])
     # Evaluation
     results = evaluate_models(data_train, y_train, data_test, y_test)
