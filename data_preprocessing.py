@@ -11,11 +11,26 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 import os
 
+def grade_to_class(grade):
+    if grade <= 4:
+        return 0
+    elif grade <= 8:
+        return 1
+    elif grade <= 12:
+        return 2
+    elif grade <= 16:
+        return 3
+    else:
+        return 4
+
 def load_data(path="data/student-por.csv", predict_kws=['G3']):
     df = pd.read_csv(path, sep=';')
 
     input_cols = [col for col in df.columns if col not in predict_kws]
     output_cols = predict_kws
+
+    for col in output_cols:
+        df[col] = df[col].apply(grade_to_class)
 
     X_df = pd.get_dummies(df[input_cols], drop_first=True)
     Y_df = df[output_cols]

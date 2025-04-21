@@ -86,6 +86,6 @@ def evaluate_models(data_train, y_train, data_test, y_test):
 
 if __name__ == "__main__":
     # DataLoader
-    data_train, y_train, data_test, y_test = load_data(predict_kws=['G3'])
+    data_train, y_train, data_test, y_test = load_data(predict_kws=['G1', 'G2', 'G3'])
     # Evaluation
     results = evaluate_models(data_train, y_train, data_test, y_test)
