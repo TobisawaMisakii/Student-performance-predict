@@ -8,27 +8,39 @@ This script is to:
 
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 import os
 
 def load_data(path="data/student-por.csv", predict_kws=['G3']):
-    data = pd.read_csv(path, sep=';')
-    data = np.array(data)
+    df = pd.read_csv(path, sep=';')
+
+    input_cols = [col for col in df.columns if col not in predict_kws]
+    output_cols = predict_kws
+
+    X_df = pd.get_dummies(df[input_cols], drop_first=True)
+    Y_df = df[output_cols]
 
     data_train = []
-    data_test = []
     y_train = []
+    data_test = []
     y_test = []
 
-    for person in range(len(data)):
-        input_data = [data[person][:-len(predict_kws)]]
-        output_data = [data[person][-len(predict_kws):]]
+    for i in range(len(df)):
+        x_row = X_df.iloc[i].values
+        y_row = Y_df.iloc[i].values
 
-        if person % 5 == 0:
-            data_test.append(input_data)
-            y_test.append(output_data)
+        if i % 5 == 0:
+            data_test.append(x_row)
+            y_test.append(y_row)
         else:
-            data_train.append(input_data)
-            y_train.append(output_data)
+            data_train.append(x_row)
+            y_train.append(y_row)
+
+    scalar = StandardScaler()
+    data_train = scalar.fit_transform(data_train)
+    data_test = scalar.transform(data_test)
+    y_train = np.array(y_train)
+    y_test = np.array(y_test)
 
     return data_train, y_train, data_test, y_test
 
