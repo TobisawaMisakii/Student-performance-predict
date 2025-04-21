@@ -11,7 +11,7 @@ import shutil
 
 from data_preprocessing import load_data
 
-def evaluate_models(data_train, y_train, data_test, y_test, title=""):
+def evaluate_models(data_train, y_train, data_test, y_test):
     """
     使用三种模型（KNN、Logistic回归、决策树）对传入的数据进行训练与评估。
 
@@ -20,7 +20,6 @@ def evaluate_models(data_train, y_train, data_test, y_test, title=""):
     - y_train: list or array-like, shape (n_samples, n_outputs)
     - data_test: same as data_train
     - y_test: same as y_train
-    - title: string, 标题显示用
 
     返回：
     - results_dict: dict, 每个模型在每个输出维度的准确率
@@ -49,6 +48,10 @@ def evaluate_models(data_train, y_train, data_test, y_test, title=""):
         print(f"======================")
         print(f"{name}:")
 
+        output_dir = f"output/{name}/{n_outputs}"
+        shutil.rmtree(output_dir, ignore_errors=True)
+        os.makedirs(output_dir, exist_ok=True)
+
         for i in range(n_outputs):
             print(f"第 {i+1} 个输出")
             model.fit(X_train, y_train[:, i])
@@ -60,9 +63,7 @@ def evaluate_models(data_train, y_train, data_test, y_test, title=""):
             print(f"准确率: {acc:.4f}")
             cls_report = classification_report(y_test[:, i], y_pred, zero_division=0, output_dict=True)
             cls_report = pd.DataFrame(cls_report).transpose()
-            shutil.rmtree(f"output/{name}", ignore_errors=True)
-            os.makedirs(f"output/{name}", exist_ok=True)
-            cls_report.to_csv(f"output/{name}/cls_report_{i + 1}.csv")
+            cls_report.to_csv(f"{output_dir}/cls_report_{i + 1}.csv")
 
             labels = np.unique(np.concatenate([y_test[:, i], y_pred]))
             cm = confusion_matrix(y_test[:, i], y_pred, labels=labels)
@@ -72,10 +73,11 @@ def evaluate_models(data_train, y_train, data_test, y_test, title=""):
             sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=labels, yticklabels=labels)
             plt.title(f"{name} Confusion Matrix (output {i+1})")
             plt.xlabel("Predicted")
-            plt.ylabel("True")
+            plt.ylabel("Truth Ground")
             plt.tight_layout()
             # plt.show()
-            plt.savefig(f'output/{name}/confusion_matrix_{i + 1}.png')
+            plt.tight_layout()
+            plt.savefig(f'{output_dir}/confusion_matrix_{i + 1}.png')
 
         results_dict[name] = model_results if len(model_results) > 1 else model_results[0]
 
@@ -84,9 +86,6 @@ def evaluate_models(data_train, y_train, data_test, y_test, title=""):
 
 if __name__ == "__main__":
     # DataLoader
-    data_train, y_train, data_test, y_test = load_data(predict_kws=['G3'])
+    data_train, y_train, data_test, y_test = load_data(predict_kws=['G1', 'G2', 'G3'])
     # Evaluation
-    results = evaluate_models(data_train, y_train, data_test, y_test, title="Student Performance")
-
-    print("======================")
-
+    results = evaluate_models(data_train, y_train, data_test, y_test)
